@@ -11,6 +11,7 @@ import {
   House,
   CalendarBlank,
   ArrowLeft,
+  ArrowRight,
   ListChecks,
   Clock,
   Package
@@ -267,6 +268,8 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
 function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number; onChangeGroup: () => void; onGroupChange: (newGroup: number) => void }) {
   const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null)
   const [hasTriggeredHaptic, setHasTriggeredHaptic] = useState(false)
+  const [swipeThresholdReached, setSwipeThresholdReached] = useState(false)
+  const [dragOffset, setDragOffset] = useState(0)
   const nextAssignment = getNextAssignment(group)
   const allAssignments = getAssignmentsForGroup(group)
   const today = new Date()
@@ -294,6 +297,8 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
         onGroupChange(prevGroup)
         setDragDirection(null)
         setHasTriggeredHaptic(false)
+        setSwipeThresholdReached(false)
+        setDragOffset(0)
       }, 200)
     } else if (info.offset.x < -swipeThreshold) {
       const nextGroup = group === 6 ? 1 : group + 1
@@ -302,16 +307,25 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
         onGroupChange(nextGroup)
         setDragDirection(null)
         setHasTriggeredHaptic(false)
+        setSwipeThresholdReached(false)
+        setDragOffset(0)
       }, 200)
     } else {
       setHasTriggeredHaptic(false)
+      setSwipeThresholdReached(false)
+      setDragOffset(0)
     }
   }
 
   const handleDrag = (_event: any, info: { offset: { x: number } }) => {
     const swipeThreshold = 100
     
-    if (!hasTriggeredHaptic && Math.abs(info.offset.x) >= swipeThreshold) {
+    setDragOffset(info.offset.x)
+    
+    const thresholdReached = Math.abs(info.offset.x) >= swipeThreshold
+    setSwipeThresholdReached(thresholdReached)
+    
+    if (!hasTriggeredHaptic && thresholdReached) {
       triggerSwipeHaptic()
       setHasTriggeredHaptic(true)
     }
@@ -375,8 +389,38 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50"
+      className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 relative overflow-hidden"
     >
+      <AnimatePresence>
+        {swipeThresholdReached && dragOffset > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.2 }}
+            className="fixed left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-blue-500/20 to-transparent flex items-center justify-start pl-4 pointer-events-none z-50"
+          >
+            <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
+              <ArrowLeft className="w-6 h-6 text-white" weight="bold" />
+            </div>
+          </motion.div>
+        )}
+        
+        {swipeThresholdReached && dragOffset < 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.2 }}
+            className="fixed right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-blue-500/20 to-transparent flex items-center justify-end pr-4 pointer-events-none z-50"
+          >
+            <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
+              <ArrowRight className="w-6 h-6 text-white" weight="bold" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
