@@ -263,7 +263,8 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
   )
 }
 
-function DashboardView({ group, onChangeGroup }: { group: number; onChangeGroup: () => void }) {
+function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number; onChangeGroup: () => void; onGroupChange: (newGroup: number) => void }) {
+  const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null)
   const nextAssignment = getNextAssignment(group)
   const allAssignments = getAssignmentsForGroup(group)
   const today = new Date()
@@ -280,6 +281,26 @@ function DashboardView({ group, onChangeGroup }: { group: number; onChangeGroup:
     assignmentDate.setHours(0, 0, 0, 0)
     return assignmentDate < today
   })
+
+  const handleDragEnd = (_event: any, info: { offset: { x: number } }) => {
+    const swipeThreshold = 100
+    
+    if (info.offset.x > swipeThreshold) {
+      const prevGroup = group === 1 ? 6 : group - 1
+      setDragDirection('right')
+      setTimeout(() => {
+        onGroupChange(prevGroup)
+        setDragDirection(null)
+      }, 200)
+    } else if (info.offset.x < -swipeThreshold) {
+      const nextGroup = group === 6 ? 1 : group + 1
+      setDragDirection('left')
+      setTimeout(() => {
+        onGroupChange(nextGroup)
+        setDragDirection(null)
+      }, 200)
+    }
+  }
 
   const handleExportCalendar = () => {
     try {
@@ -349,7 +370,7 @@ function DashboardView({ group, onChangeGroup }: { group: number; onChangeGroup:
             </div>
             <div>
               <h2 className="text-xl font-semibold">Group {group}</h2>
-              <p className="text-sm text-blue-100">Your Schedule</p>
+              <p className="text-sm text-blue-100">Swipe to change</p>
             </div>
           </div>
           <Button
@@ -364,7 +385,18 @@ function DashboardView({ group, onChangeGroup }: { group: number; onChangeGroup:
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-8 pb-20">
+      <motion.div 
+        className="max-w-4xl mx-auto p-4 md:p-6 space-y-8 pb-20"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        animate={{
+          x: dragDirection === 'left' ? -50 : dragDirection === 'right' ? 50 : 0,
+          opacity: dragDirection ? 0.5 : 1
+        }}
+        transition={{ duration: 0.2 }}
+      >
         {nextAssignment ? (
           <Card className="relative overflow-hidden border-0 shadow-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600" />
@@ -549,7 +581,7 @@ function DashboardView({ group, onChangeGroup }: { group: number; onChangeGroup:
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </motion.div>
   )
 }
@@ -565,6 +597,10 @@ function App() {
     setSelectedGroup(null)
   }
 
+  const handleGroupChange = (newGroup: number) => {
+    setSelectedGroup(newGroup)
+  }
+
   return (
     <>
       <Toaster position="bottom-center" />
@@ -572,7 +608,12 @@ function App() {
         {selectedGroup === null || selectedGroup === undefined ? (
           <WelcomeView key="welcome" onSelectGroup={handleSelectGroup} />
         ) : (
-          <DashboardView key="dashboard" group={selectedGroup} onChangeGroup={handleChangeGroup} />
+          <DashboardView 
+            key="dashboard" 
+            group={selectedGroup} 
+            onChangeGroup={handleChangeGroup}
+            onGroupChange={handleGroupChange}
+          />
         )}
       </AnimatePresence>
     </>

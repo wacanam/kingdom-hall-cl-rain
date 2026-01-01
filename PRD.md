@@ -47,6 +47,13 @@ This is a straightforward scheduling viewer with group selection, date filtering
 - Progression: User taps button → Dialog opens with task-specific checklist → User can check off items as completed → Checklist groups tasks by area for easier navigation
 - Success criteria: Dialog displays all cleaning tasks organized by area (General, Floors, Surfaces, etc.), estimated time, required supplies list, and important notes; checkboxes allow interactive tracking of task completion
 
+**Swipe Gesture Navigation**
+- Functionality: Allows users to swipe left or right on the dashboard to navigate between groups (1-6)
+- Purpose: Provides intuitive, mobile-first navigation for quickly switching between group schedules
+- Trigger: User swipes left/right anywhere on the dashboard content area
+- Progression: User swipes left → Content slides left with fade → Group increments (wraps from 6 to 1) → Dashboard loads with new group data; User swipes right → Content slides right with fade → Group decrements (wraps from 1 to 6) → Dashboard loads with new group data
+- Success criteria: Smooth swipe detection with 100px threshold, visual feedback during drag (content follows finger with elastic constraints), seamless group cycling with wrap-around (Group 6 → 1, Group 1 → 6), selected group persists in storage
+
 ## Edge Case Handling
 
 - **No Upcoming Dates**: If user views schedule after last 2026 date, display message "All 2026 cleaning complete! Thank you for your service."
@@ -99,6 +106,7 @@ Animations should create a sense of smoothness and delight without slowing down 
 - **Timeline Entry**: Staggered fade-in as timeline items appear (50ms delay between items, 200ms duration)
 - **Success Toast**: Slide-up from bottom with spring physics for calendar download confirmation
 - **Badge Pulse**: Gentle pulse animation on "Coming Soon" and "Today!" badges (2s infinite ease-in-out)
+- **Swipe Gesture**: Content follows finger during drag with elastic resistance (0.2 elasticity), fades to 50% opacity when swipe threshold met, slides left/right 50px during group transition (200ms duration)
 
 ## Component Selection
 
@@ -147,5 +155,6 @@ Animations should create a sense of smoothness and delight without slowing down 
   - Hero card: Full width on mobile, max-w-2xl centered on desktop
   - Timeline: Single column at all breakpoints with full-width cards, flex-col on mobile, flex-row on desktop for card content
   - Button: Full width on mobile (w-full), auto width on desktop
-  - Sticky header: Responsive layout with proper spacing, centered group info, and adequate button sizes for touch
+  - Sticky header: Responsive layout with proper spacing, centered group info, "Swipe to change" hint text, and adequate button sizes for touch
+  - Swipe gestures: Enabled on all screen sizes with touch-optimized drag constraints and elastic feedback
   - Text sizing: Base 16px on mobile, scales up slightly (1.05x) on desktop for comfortable reading distance
