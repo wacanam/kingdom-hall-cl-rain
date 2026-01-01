@@ -10,11 +10,23 @@ import {
   Drop,
   House,
   CalendarBlank,
-  ArrowLeft
+  ArrowLeft,
+  ListChecks,
+  Clock,
+  Package
 } from '@phosphor-icons/react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Checkbox } from '@/components/ui/checkbox'
 import { 
   getAssignmentsForGroup, 
   getNextAssignment, 
@@ -23,10 +35,161 @@ import {
   formatShortDate,
   getDayOfWeek,
   downloadICS,
-  type CleaningAssignment
+  cleaningInstructionsData,
+  type CleaningAssignment,
+  type TaskType
 } from '@/lib/scheduleData'
 
 const cleaningIcons = [Broom, Drop, Sparkle, House]
+
+function CleaningChecklistContent({ taskType }: { taskType: TaskType }) {
+  const instructions = cleaningInstructionsData[taskType]
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set())
+
+  const toggleItem = (id: string) => {
+    setCheckedItems(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(id)) {
+        newSet.delete(id)
+      } else {
+        newSet.add(id)
+      }
+      return newSet
+    })
+  }
+
+  const groupedChecklist = instructions.checklist.reduce((acc, item) => {
+    const area = item.area || 'Other'
+    if (!acc[area]) {
+      acc[area] = []
+    }
+    acc[area].push(item)
+    return acc
+  }, {} as Record<string, typeof instructions.checklist>)
+
+  return (
+    <div className="space-y-6 mt-4">
+      <div className="flex items-center gap-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+        <div className="flex items-center gap-2 text-slate-700">
+          <Clock className="w-5 h-5 text-blue-600" weight="duotone" />
+          <span className="text-sm font-semibold">Time:</span>
+          <span className="text-sm">{instructions.estimatedTime}</span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 text-slate-800">
+          <Package className="w-5 h-5 text-blue-600" weight="duotone" />
+          <h3 className="font-semibold text-sm uppercase tracking-wide">Supplies Needed</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {instructions.supplies.map((supply, index) => (
+            <div key={index} className="flex items-start gap-2 text-sm text-slate-600">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+              {supply}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-slate-800">
+          <ListChecks className="w-5 h-5 text-blue-600" weight="duotone" />
+          <h3 className="font-semibold text-sm uppercase tracking-wide">Cleaning Tasks</h3>
+        </div>
+        
+        <div className="space-y-4">
+          {Object.entries(groupedChecklist).map(([area, items]) => (
+            <div key={area} className="space-y-2">
+              <div className="text-xs font-bold text-blue-600 uppercase tracking-wider px-2 py-1 bg-blue-50 rounded inline-block">
+                {area}
+              </div>
+              <div className="space-y-2 pl-2">
+                {items.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer"
+                    onClick={() => toggleItem(item.id)}
+                  >
+                    <Checkbox
+                      id={item.id}
+                      checked={checkedItems.has(item.id)}
+                      onCheckedChange={() => toggleItem(item.id)}
+                      className="mt-0.5"
+                    />
+                    <label
+                      htmlFor={item.id}
+                      className={`text-sm leading-relaxed cursor-pointer flex-1 ${
+                        checkedItems.has(item.id) 
+                          ? 'line-through text-slate-400' 
+                          : 'text-slate-700'
+                      }`}
+                    >
+                      {item.task}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {instructions.notes && instructions.notes.length > 0 && (
+        <div className="space-y-3 pt-4 border-t border-slate-200">
+          <h3 className="font-semibold text-sm uppercase tracking-wide text-slate-800">Important Notes</h3>
+          <div className="space-y-2">
+            {instructions.notes.map((note, index) => (
+              <div key={index} className="flex items-start gap-2 text-sm text-slate-600 bg-amber-50 p-3 rounded-lg border border-amber-100">
+                <Sparkle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" weight="fill" />
+                {note}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function CleaningInstructionsDialog({ taskType }: { taskType: TaskType }) {
+  const instructions = cleaningInstructionsData[taskType]
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="bg-white/90 hover:bg-white border-2 border-blue-200 text-blue-700 hover:text-blue-800 font-semibold transition-all duration-150 active:scale-95"
+        >
+          <ListChecks className="w-4 h-4 mr-2" weight="bold" />
+          View Checklist
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+            {taskType === 'Main Hall' ? (
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center">
+                <House className="w-6 h-6 text-white" weight="fill" />
+              </div>
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                <Drop className="w-6 h-6 text-white" weight="fill" />
+              </div>
+            )}
+            {taskType} Cleaning Checklist
+          </DialogTitle>
+          <DialogDescription className="text-slate-600">
+            Follow this checklist to ensure thorough and consistent cleaning
+          </DialogDescription>
+        </DialogHeader>
+        <CleaningChecklistContent taskType={taskType} />
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void }) {
   const [currentIconIndex, setCurrentIconIndex] = useState(0)
@@ -238,13 +401,16 @@ function DashboardView({ group, onChangeGroup }: { group: number; onChangeGroup:
                 {getTaskBadge(nextAssignment.taskType)}
               </div>
 
-              <Button
-                onClick={handleExportCalendar}
-                className="w-full md:w-auto bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg transition-all duration-150 active:scale-98"
-              >
-                <CalendarBlank className="w-5 h-5 mr-2" weight="duotone" />
-                Add to My Calendar
-              </Button>
+              <div className="flex flex-col md:flex-row gap-3">
+                <Button
+                  onClick={handleExportCalendar}
+                  className="flex-1 md:flex-initial bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg transition-all duration-150 active:scale-98"
+                >
+                  <CalendarBlank className="w-5 h-5 mr-2" weight="duotone" />
+                  Add to Calendar
+                </Button>
+                <CleaningInstructionsDialog taskType={nextAssignment.taskType} />
+              </div>
             </div>
           </Card>
         ) : (
@@ -297,9 +463,40 @@ function DashboardView({ group, onChangeGroup }: { group: number; onChangeGroup:
                           {formatShortDate(assignment.date)}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {getTaskBadge(assignment.taskType)}
                         {getProximityBadge(assignment.date)}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50"
+                            >
+                              <ListChecks className="w-4 h-4" weight="bold" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                                {assignment.taskType === 'Main Hall' ? (
+                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center">
+                                    <House className="w-6 h-6 text-white" weight="fill" />
+                                  </div>
+                                ) : (
+                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                                    <Drop className="w-6 h-6 text-white" weight="fill" />
+                                  </div>
+                                )}
+                                {assignment.taskType} Checklist
+                              </DialogTitle>
+                              <DialogDescription className="text-slate-600">
+                                {formatDate(assignment.date)}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <CleaningChecklistContent taskType={assignment.taskType} />
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </Card>

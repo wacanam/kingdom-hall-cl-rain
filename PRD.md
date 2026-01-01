@@ -40,6 +40,13 @@ This is a straightforward scheduling viewer with group selection, date filtering
 - Progression: Dashboard loads → Master schedule filtered by group → Dates rendered as timeline → User scrolls to view future dates
 - Success criteria: All dates displayed in chronological order with correct task badges, clear visual distinction between Main Hall and CR assignments
 
+**Cleaning Instructions & Checklist**
+- Functionality: Displays detailed cleaning instructions, supplies list, and interactive checklist for each task type (Main Hall and CR)
+- Purpose: Ensures consistent, thorough cleaning by providing step-by-step guidance and tracking completion
+- Trigger: User taps "View Checklist" button on Next Up card or checklist icon on timeline items
+- Progression: User taps button → Dialog opens with task-specific checklist → User can check off items as completed → Checklist groups tasks by area for easier navigation
+- Success criteria: Dialog displays all cleaning tasks organized by area (General, Floors, Surfaces, etc.), estimated time, required supplies list, and important notes; checkboxes allow interactive tracking of task completion
+
 ## Edge Case Handling
 
 - **No Upcoming Dates**: If user views schedule after last 2026 date, display message "All 2026 cleaning complete! Thank you for your service."
@@ -99,16 +106,19 @@ Animations should create a sense of smoothness and delight without slowing down 
   - Card (shadcn) - Base component for group selection cards, Next Up hero, and timeline items with glassmorphism via backdrop-blur
   - Badge (shadcn) - Task type indicators (Main Hall/CR) and proximity alerts (Coming Soon/Today!)
   - Button (shadcn) - Primary CTA for calendar export and group change navigation
+  - Dialog (shadcn) - Modal overlay for displaying cleaning instructions and checklists
+  - Checkbox (shadcn) - Interactive checkboxes for tracking task completion in cleaning checklists
   - Separator (shadcn) - Visual dividers between timeline sections
   - ScrollArea (shadcn) - Smooth scrolling container for timeline
 - **Customizations**: 
   - Glassmorphism cards: white background with bg-opacity-80, backdrop-blur-lg, and subtle border
   - Timeline design: Vertical timeline with circular icons (Main Hall = Home icon, CR = Droplet icon) in gradient circles (blue for upcoming, gray for past), connected by gradient vertical line
-  - Timeline cards: Glass cards with hover scale effect, displaying day of week in small blue text, large date, and task badge
+  - Timeline cards: Glass cards with hover scale effect, displaying day of week in small blue text, large date, task badge, and checklist icon button
   - Hero icon: Dynamic rotating cleaning materials using Phosphor and Lucide icons (Broom, Toilet, Bathtub, Soap, Bucket, Droplet, Sparkles, Wind, Waves) that change every 2 seconds with smooth fade transitions
   - Next Up card: Full gradient background (blue-400 to blue-600) with floating animated cleaning icons (Broom, Sparkle, Heart, Sun/Droplets) that gently float around the card
   - Sticky header: Gradient blue header (blue-600 to blue-700) with white text, centered group number, and frosted glass "Change Group" button
   - Section headers: Small gradient bar accent (8px × 3px rounded) followed by bold uppercase text for visual hierarchy
+  - Cleaning checklist dialog: Full-featured modal with task icon header, estimated time indicator, supplies list, grouped checklist items by area (General, Floors, Surfaces, etc.), interactive checkboxes with strikethrough on completion, and important notes section with amber highlight
 - **States**: 
   - Group Cards: default (white + shadow), hover (scale + shadow increase), active (scale down + blue border)
   - Primary Button: default (blue + white text), hover (darker blue), pressed (scale down), loading (spinner + disabled state)
@@ -120,6 +130,9 @@ Animations should create a sense of smoothness and delight without slowing down 
   - Calendar (export button) - universal symbol for calendar integration
   - ArrowLeft (back button) - standard navigation back
   - Check (task completion indicator) - confirms assignment
+  - ListChecks (checklist button) - represents cleaning tasks and instructions
+  - Clock (time estimate) - shows estimated cleaning duration
+  - Package (supplies icon) - represents cleaning supplies needed
   - Home (Main Hall badge and timeline icon) - represents the main building
   - Droplet (CR badge and timeline icon) - represents water/restrooms
   - Broom, Sparkle, Heart, Sun, Moon (Next Up floating icons) - create friendly, welcoming atmosphere
