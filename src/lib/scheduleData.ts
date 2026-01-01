@@ -6,123 +6,54 @@ export interface CleaningAssignment {
   taskType: TaskType
 }
 
-export const cleaningSchedule2026: CleaningAssignment[] = [
-  { date: '2026-01-03', group: 1, taskType: 'Main Hall' },
-  { date: '2026-01-03', group: 2, taskType: 'CR' },
-  { date: '2026-01-10', group: 3, taskType: 'Main Hall' },
-  { date: '2026-01-10', group: 4, taskType: 'CR' },
-  { date: '2026-01-17', group: 5, taskType: 'Main Hall' },
-  { date: '2026-01-17', group: 6, taskType: 'CR' },
-  { date: '2026-01-24', group: 1, taskType: 'CR' },
-  { date: '2026-01-24', group: 2, taskType: 'Main Hall' },
-  { date: '2026-01-31', group: 3, taskType: 'CR' },
-  { date: '2026-01-31', group: 4, taskType: 'Main Hall' },
+const MAIN_HALL_ROTATION = [4, 6, 3, 5, 1, 2]
+const CR_ROTATION = [5, 1, 2, 4, 6, 3]
+
+function generateCleaningDates(): string[] {
+  const dates: string[] = []
+  const startDate = new Date('2026-01-03')
+  const endDate = new Date('2026-12-31')
   
-  { date: '2026-02-07', group: 5, taskType: 'CR' },
-  { date: '2026-02-07', group: 6, taskType: 'Main Hall' },
-  { date: '2026-02-14', group: 1, taskType: 'Main Hall' },
-  { date: '2026-02-14', group: 2, taskType: 'CR' },
-  { date: '2026-02-21', group: 3, taskType: 'Main Hall' },
-  { date: '2026-02-21', group: 4, taskType: 'CR' },
-  { date: '2026-02-28', group: 5, taskType: 'Main Hall' },
-  { date: '2026-02-28', group: 6, taskType: 'CR' },
+  let currentDate = new Date(startDate)
   
-  { date: '2026-03-07', group: 1, taskType: 'CR' },
-  { date: '2026-03-07', group: 2, taskType: 'Main Hall' },
-  { date: '2026-03-14', group: 3, taskType: 'CR' },
-  { date: '2026-03-14', group: 4, taskType: 'Main Hall' },
-  { date: '2026-03-21', group: 5, taskType: 'CR' },
-  { date: '2026-03-21', group: 6, taskType: 'Main Hall' },
-  { date: '2026-03-28', group: 1, taskType: 'Main Hall' },
-  { date: '2026-03-28', group: 2, taskType: 'CR' },
+  while (currentDate <= endDate) {
+    const dateStr = currentDate.toISOString().split('T')[0]
+    dates.push(dateStr)
+    currentDate.setDate(currentDate.getDate() + 7)
+  }
   
-  { date: '2026-04-04', group: 3, taskType: 'Main Hall' },
-  { date: '2026-04-04', group: 4, taskType: 'CR' },
-  { date: '2026-04-11', group: 5, taskType: 'Main Hall' },
-  { date: '2026-04-11', group: 6, taskType: 'CR' },
-  { date: '2026-04-18', group: 1, taskType: 'CR' },
-  { date: '2026-04-18', group: 2, taskType: 'Main Hall' },
-  { date: '2026-04-25', group: 3, taskType: 'CR' },
-  { date: '2026-04-25', group: 4, taskType: 'Main Hall' },
+  return dates
+}
+
+function generateSchedule(): CleaningAssignment[] {
+  const dates = generateCleaningDates()
+  const schedule: CleaningAssignment[] = []
   
-  { date: '2026-05-02', group: 5, taskType: 'CR' },
-  { date: '2026-05-02', group: 6, taskType: 'Main Hall' },
-  { date: '2026-05-09', group: 1, taskType: 'Main Hall' },
-  { date: '2026-05-09', group: 2, taskType: 'CR' },
-  { date: '2026-05-16', group: 3, taskType: 'Main Hall' },
-  { date: '2026-05-16', group: 4, taskType: 'CR' },
-  { date: '2026-05-23', group: 5, taskType: 'Main Hall' },
-  { date: '2026-05-23', group: 6, taskType: 'CR' },
-  { date: '2026-05-30', group: 1, taskType: 'CR' },
-  { date: '2026-05-30', group: 2, taskType: 'Main Hall' },
+  dates.forEach((date, index) => {
+    const mainHallGroup = MAIN_HALL_ROTATION[index % MAIN_HALL_ROTATION.length]
+    const crGroup = CR_ROTATION[index % CR_ROTATION.length]
+    
+    schedule.push({
+      date,
+      group: mainHallGroup,
+      taskType: 'Main Hall'
+    })
+    
+    schedule.push({
+      date,
+      group: crGroup,
+      taskType: 'CR'
+    })
+  })
   
-  { date: '2026-06-06', group: 3, taskType: 'CR' },
-  { date: '2026-06-06', group: 4, taskType: 'Main Hall' },
-  { date: '2026-06-13', group: 5, taskType: 'CR' },
-  { date: '2026-06-13', group: 6, taskType: 'Main Hall' },
-  { date: '2026-06-20', group: 1, taskType: 'Main Hall' },
-  { date: '2026-06-20', group: 2, taskType: 'CR' },
-  { date: '2026-06-27', group: 3, taskType: 'Main Hall' },
-  { date: '2026-06-27', group: 4, taskType: 'CR' },
-  
-  { date: '2026-07-04', group: 5, taskType: 'Main Hall' },
-  { date: '2026-07-04', group: 6, taskType: 'CR' },
-  { date: '2026-07-11', group: 1, taskType: 'CR' },
-  { date: '2026-07-11', group: 2, taskType: 'Main Hall' },
-  { date: '2026-07-18', group: 3, taskType: 'CR' },
-  { date: '2026-07-18', group: 4, taskType: 'Main Hall' },
-  { date: '2026-07-25', group: 5, taskType: 'CR' },
-  { date: '2026-07-25', group: 6, taskType: 'Main Hall' },
-  
-  { date: '2026-08-01', group: 1, taskType: 'Main Hall' },
-  { date: '2026-08-01', group: 2, taskType: 'CR' },
-  { date: '2026-08-08', group: 3, taskType: 'Main Hall' },
-  { date: '2026-08-08', group: 4, taskType: 'CR' },
-  { date: '2026-08-15', group: 5, taskType: 'Main Hall' },
-  { date: '2026-08-15', group: 6, taskType: 'CR' },
-  { date: '2026-08-22', group: 1, taskType: 'CR' },
-  { date: '2026-08-22', group: 2, taskType: 'Main Hall' },
-  { date: '2026-08-29', group: 3, taskType: 'CR' },
-  { date: '2026-08-29', group: 4, taskType: 'Main Hall' },
-  
-  { date: '2026-09-05', group: 5, taskType: 'CR' },
-  { date: '2026-09-05', group: 6, taskType: 'Main Hall' },
-  { date: '2026-09-12', group: 1, taskType: 'Main Hall' },
-  { date: '2026-09-12', group: 2, taskType: 'CR' },
-  { date: '2026-09-19', group: 3, taskType: 'Main Hall' },
-  { date: '2026-09-19', group: 4, taskType: 'CR' },
-  { date: '2026-09-26', group: 5, taskType: 'Main Hall' },
-  { date: '2026-09-26', group: 6, taskType: 'CR' },
-  
-  { date: '2026-10-03', group: 1, taskType: 'CR' },
-  { date: '2026-10-03', group: 2, taskType: 'Main Hall' },
-  { date: '2026-10-10', group: 3, taskType: 'CR' },
-  { date: '2026-10-10', group: 4, taskType: 'Main Hall' },
-  { date: '2026-10-17', group: 5, taskType: 'CR' },
-  { date: '2026-10-17', group: 6, taskType: 'Main Hall' },
-  { date: '2026-10-24', group: 1, taskType: 'Main Hall' },
-  { date: '2026-10-24', group: 2, taskType: 'CR' },
-  { date: '2026-10-31', group: 3, taskType: 'Main Hall' },
-  { date: '2026-10-31', group: 4, taskType: 'CR' },
-  
-  { date: '2026-11-07', group: 5, taskType: 'Main Hall' },
-  { date: '2026-11-07', group: 6, taskType: 'CR' },
-  { date: '2026-11-14', group: 1, taskType: 'CR' },
-  { date: '2026-11-14', group: 2, taskType: 'Main Hall' },
-  { date: '2026-11-21', group: 3, taskType: 'CR' },
-  { date: '2026-11-21', group: 4, taskType: 'Main Hall' },
-  { date: '2026-11-28', group: 5, taskType: 'CR' },
-  { date: '2026-11-28', group: 6, taskType: 'Main Hall' },
-  
-  { date: '2026-12-05', group: 1, taskType: 'Main Hall' },
-  { date: '2026-12-05', group: 2, taskType: 'CR' },
-  { date: '2026-12-12', group: 3, taskType: 'Main Hall' },
-  { date: '2026-12-12', group: 4, taskType: 'CR' },
-  { date: '2026-12-19', group: 5, taskType: 'Main Hall' },
-  { date: '2026-12-19', group: 6, taskType: 'CR' },
-  { date: '2026-12-26', group: 1, taskType: 'CR' },
-  { date: '2026-12-26', group: 2, taskType: 'Main Hall' },
-]
+  return schedule.sort((a, b) => {
+    const dateCompare = new Date(a.date).getTime() - new Date(b.date).getTime()
+    if (dateCompare !== 0) return dateCompare
+    return a.taskType === 'Main Hall' ? -1 : 1
+  })
+}
+
+export const cleaningSchedule2026: CleaningAssignment[] = generateSchedule()
 
 export function getAssignmentsForGroup(group: number): CleaningAssignment[] {
   return cleaningSchedule2026
