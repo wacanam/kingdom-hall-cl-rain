@@ -213,6 +213,26 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
           <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
             Select your cleaning group to view your assignments and add them to your calendar
           </p>
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-6 max-w-2xl mx-auto shadow-md">
+            <div className="flex items-start gap-3">
+              <Heart className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" weight="fill" />
+              <div className="space-y-2">
+                <p className="text-base text-slate-700 leading-relaxed font-medium">
+                  <strong className="text-blue-700">Dear Faithful Servants,</strong>
+                </p>
+                <p className="text-base text-slate-700 leading-relaxed">
+                  Thank you for your loving care and dedication in maintaining Jehovah's place of worship! 
+                  Your willing spirit and hard work bring joy to all who gather here.
+                </p>
+                <p className="text-sm text-slate-600 italic leading-relaxed border-l-4 border-amber-400 pl-3 py-1">
+                  "Whatever you are doing, work at it whole-souled as for Jehovah." - Colossians 3:23
+                </p>
+                <p className="text-base text-slate-700 leading-relaxed">
+                  Your service is truly appreciated! ✨
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
@@ -601,6 +621,15 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
 
               <div className="flex items-center gap-2">
                 {getTaskBadge(nextAssignment.taskType)}
+              </div>
+
+              <div className="bg-white/30 backdrop-blur-sm rounded-lg p-4 border border-white/40 shadow-sm">
+                <div className="flex items-start gap-2">
+                  <Sparkle className="w-5 h-5 text-amber-300 flex-shrink-0 mt-0.5" weight="fill" />
+                  <p className="text-sm text-white leading-relaxed">
+                    <strong>Thank you for your faithful service!</strong> Your dedication in keeping our Kingdom Hall clean and welcoming is a beautiful expression of love for Jehovah and our brothers and sisters. May your efforts be richly blessed! 🙏
+                  </p>
+                </div>
               </div>
 
               <div className="flex flex-col md:flex-row gap-3">
