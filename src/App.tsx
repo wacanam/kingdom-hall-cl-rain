@@ -161,11 +161,9 @@ function CleaningInstructionsDialog({ taskType }: { taskType: TaskType }) {
     <Dialog>
       <DialogTrigger asChild>
         <Button 
-          variant="outline" 
-          size="sm"
-          className="border dark:bg-input/30 dark:border-input dark:hover:bg-input/50 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 has-[>svg]:px-3 flex-1 md:flex-initial bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg transition-all duration-150 active:scale-98"
+          className="flex-1 md:flex-initial bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg transition-all duration-150 active:scale-98"
         >
-          <ListChecks className="w-4 h-4 mr-2" weight="bold" />
+          <ListChecks className="w-5 h-5 mr-2" weight="duotone" />
           View Checklist
         </Button>
       </DialogTrigger>
