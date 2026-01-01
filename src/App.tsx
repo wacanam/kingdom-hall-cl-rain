@@ -226,9 +226,9 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
             </div>
           </motion.div>
           
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">
-            Kingdom Hall Cleaning Schedule 2026
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">Diclum Congregation
+          Kingdom Hall Cleaning
+          Schedule 2026</h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
             Select your cleaning group to view your assignments and add them to your calendar
           </p>
@@ -260,7 +260,7 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 function CleaningAnimation({ taskType }: { taskType: TaskType }) {
