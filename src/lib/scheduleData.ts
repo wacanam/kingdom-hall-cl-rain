@@ -212,8 +212,8 @@ export function generateICS(group: number): string {
     const dayOfWeek = date.getDay()
     
     // Determine meeting times based on day of week
-    // Thursday (4) = 5:30 PM - 7:30 PM
-    // Sunday (0) = 2:00 PM - 4:00 PM
+    // Thursday (4) = 5:30 PM - 7:30 PM (2 hours)
+    // Sunday (0) = 2:00 PM - 4:00 PM (2 hours)
     let startTime, endTime
     if (dayOfWeek === 4) { // Thursday
       startTime = '173000' // 5:30 PM
@@ -227,6 +227,10 @@ export function generateICS(group: number): string {
     
     // Create warm commendation message
     const warmMessage = `Dear faithful servants,\\n\\nThank you for your loving care and dedication in maintaining Jehovah's place of worship! Your willing spirit and hard work in keeping the Kingdom Hall clean and welcoming brings joy to all who gather here.\\n\\n"Whatever you are doing\\, work at it whole-souled as for Jehovah." - Colossians 3:23\\n\\nYour service is truly appreciated!\\n\\nAssignment: ${assignment.taskType}\\nGroup: ${group}\\n\\nMay Jehovah bless your efforts!`
+    
+    // Alarm descriptions
+    const alarmStartDesc = `Kingdom Hall cleaning starts soon! Thank you for your faithful service. ${assignment.taskType} - Group ${group}`
+    const alarmEndDesc = `Meeting ends soon. Thank you for your wonderful work in keeping Jehovah's house clean! ${assignment.taskType} - Group ${group}`
     
     icsLines.push(
       'BEGIN:VEVENT',
@@ -242,26 +246,26 @@ export function generateICS(group: number): string {
       // Audio alarm 30 minutes before meeting starts (when cleaning must be done)
       'BEGIN:VALARM',
       'ACTION:AUDIO',
-      `DESCRIPTION:Kingdom Hall cleaning starts soon! Thank you for your faithful service. ${assignment.taskType} - Group ${group}`,
+      `DESCRIPTION:${alarmStartDesc}`,
       'TRIGGER:-PT30M',
       'END:VALARM',
       // Display reminder 30 minutes before meeting starts
       'BEGIN:VALARM',
       'ACTION:DISPLAY',
-      `DESCRIPTION:Kingdom Hall cleaning starts soon! Thank you for your faithful service. ${assignment.taskType} - Group ${group}`,
+      `DESCRIPTION:${alarmStartDesc}`,
       'TRIGGER:-PT30M',
       'END:VALARM',
-      // Audio alarm 15 minutes before meeting ends
+      // Audio alarm 15 minutes before meeting ends (relative to end time)
       'BEGIN:VALARM',
       'ACTION:AUDIO',
-      `DESCRIPTION:Meeting ends soon. Thank you for your wonderful work in keeping Jehovah's house clean! ${assignment.taskType} - Group ${group}`,
-      'TRIGGER:-PT15M',
+      `DESCRIPTION:${alarmEndDesc}`,
+      'TRIGGER;RELATED=END:-PT15M',
       'END:VALARM',
       // Display reminder 15 minutes before meeting ends
       'BEGIN:VALARM',
       'ACTION:DISPLAY',
-      `DESCRIPTION:Meeting ends soon. Thank you for your wonderful work in keeping Jehovah's house clean! ${assignment.taskType} - Group ${group}`,
-      'TRIGGER:-PT15M',
+      `DESCRIPTION:${alarmEndDesc}`,
+      'TRIGGER;RELATED=END:-PT15M',
       'END:VALARM',
       'END:VEVENT'
     )
