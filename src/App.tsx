@@ -41,8 +41,7 @@ import {
   type TaskType
 } from '@/lib/scheduleData'
 import { triggerSwipeHaptic } from '@/lib/haptics'
-
-const cleaningIcons = [Broom, Drop, Sparkle, House]
+import { CleaningIcon } from '@/components/CleaningIcon'
 
 function CleaningChecklistContent({ taskType }: { taskType: TaskType }) {
   const instructions = cleaningInstructionsData[taskType]
@@ -192,17 +191,6 @@ function CleaningInstructionsDialog({ taskType }: { taskType: TaskType }) {
 }
 
 function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void }) {
-  const [currentIconIndex, setCurrentIconIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIconIndex((prev) => (prev + 1) % cleaningIcons.length)
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const CurrentIcon = cleaningIcons[currentIconIndex]
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -213,18 +201,11 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
     >
       <div className="max-w-4xl mx-auto space-y-8 pt-8">
         <div className="text-center space-y-4">
-          <motion.div
-            key={currentIconIndex}
-            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center"
-          >
+          <div className="flex justify-center">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-              <CurrentIcon className="w-10 h-10 text-white" weight="duotone" />
+              <CleaningIcon />
             </div>
-          </motion.div>
+          </div>
           
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">Diclum Congregation
           Kingdom Hall Cleaning
