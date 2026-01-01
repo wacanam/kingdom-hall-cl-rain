@@ -265,21 +265,7 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
   )
 }
 
-function CleaningAnimation({ taskType, onComplete }: { taskType: TaskType; onComplete: () => void }) {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([])
-  
-  useEffect(() => {
-    const newParticles = Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 80 - 40,
-      y: Math.random() * 60 - 30
-    }))
-    setParticles(newParticles)
-    
-    const timer = setTimeout(onComplete, 1500)
-    return () => clearTimeout(timer)
-  }, [onComplete])
-
+function CleaningAnimation({ taskType }: { taskType: TaskType }) {
   const Icon = taskType === 'Main Hall' ? Broom : Drop
 
   return (
@@ -287,7 +273,6 @@ function CleaningAnimation({ taskType, onComplete }: { taskType: TaskType; onCom
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.5, opacity: 0 }}
         className="relative"
       >
         <motion.div
@@ -298,7 +283,12 @@ function CleaningAnimation({ taskType, onComplete }: { taskType: TaskType; onCom
             y: [0, 5, 0, 5, 0],
             scale: [1, 1.1, 1, 1.1, 1]
           }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+          transition={{ 
+            duration: 0.8, 
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatDelay: 0.2
+          }}
         >
           <Icon 
             className={`w-12 h-12 ${taskType === 'Main Hall' ? 'text-sky-500' : 'text-blue-500'}`}
@@ -306,25 +296,38 @@ function CleaningAnimation({ taskType, onComplete }: { taskType: TaskType; onCom
           />
         </motion.div>
         
-        {particles.map(particle => (
-          <motion.div
-            key={particle.id}
-            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-            animate={{ 
-              x: particle.x, 
-              y: particle.y, 
-              opacity: 0,
-              scale: 0.5
-            }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="absolute top-1/2 left-1/2"
-          >
-            <Sparkle 
-              className={`w-3 h-3 ${taskType === 'Main Hall' ? 'text-amber-400' : 'text-cyan-400'}`}
-              weight="fill"
-            />
-          </motion.div>
-        ))}
+        {Array.from({ length: 8 }).map((_, i) => {
+          const angle = (i / 8) * Math.PI * 2
+          const distance = 40
+          const x = Math.cos(angle) * distance
+          const y = Math.sin(angle) * distance
+          
+          return (
+            <motion.div
+              key={i}
+              initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
+              animate={{ 
+                x: [0, x, 0], 
+                y: [0, y, 0], 
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0]
+              }}
+              transition={{ 
+                duration: 1.5, 
+                ease: "easeInOut",
+                repeat: Infinity,
+                delay: i * 0.1,
+                repeatDelay: 0.3
+              }}
+              className="absolute top-1/2 left-1/2"
+            >
+              <Sparkle 
+                className={`w-3 h-3 ${taskType === 'Main Hall' ? 'text-amber-400' : 'text-cyan-400'}`}
+                weight="fill"
+              />
+            </motion.div>
+          )
+        })}
       </motion.div>
     </div>
   )
@@ -343,6 +346,9 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
   
   const prevGroup = group === 1 ? 6 : group - 1
   const nextGroup = group === 6 ? 1 : group + 1
+  
+  const prevGroupNextAssignment = getNextAssignment(prevGroup)
+  const nextGroupNextAssignment = getNextAssignment(nextGroup)
 
   const upcomingAssignments = allAssignments.filter(assignment => {
     const assignmentDate = new Date(assignment.date)
@@ -451,11 +457,11 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
   }
 
   const handleCardClick = (cardId: string) => {
-    setAnimatingCard(cardId)
-  }
-
-  const handleAnimationComplete = () => {
-    setAnimatingCard(null)
+    if (animatingCard === cardId) {
+      setAnimatingCard(null)
+    } else {
+      setAnimatingCard(cardId)
+    }
   }
 
   return (
@@ -473,7 +479,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.2 }}
-            className="fixed left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-blue-500/20 to-transparent flex items-center justify-start pl-4 pointer-events-none z-50"
+            className="fixed left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-blue-500/20 to-transparent flex items-center justify-start pl-4 pointer-events-none z-50"
           >
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
@@ -482,6 +488,27 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
               <div className="bg-blue-500 text-white text-sm font-bold px-2 py-1 rounded-full shadow-lg">
                 {prevGroup}
               </div>
+              {prevGroupNextAssignment && (
+                <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-2 text-center mt-1">
+                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                    Next Up
+                  </div>
+                  <div className="text-xs font-medium text-slate-700 mt-1">
+                    {formatShortDate(prevGroupNextAssignment.date)}
+                  </div>
+                  <Badge className={`mt-1 text-[10px] px-1.5 py-0.5 ${
+                    prevGroupNextAssignment.taskType === 'Main Hall' 
+                      ? 'bg-sky-500' 
+                      : 'bg-emerald-500'
+                  } text-white`}>
+                    {prevGroupNextAssignment.taskType === 'Main Hall' ? (
+                      <><House className="w-2.5 h-2.5 mr-0.5" weight="fill" />Hall</>
+                    ) : (
+                      <><Drop className="w-2.5 h-2.5 mr-0.5" weight="fill" />CR</>
+                    )}
+                  </Badge>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -492,7 +519,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
             transition={{ duration: 0.2 }}
-            className="fixed right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-blue-500/20 to-transparent flex items-center justify-end pr-4 pointer-events-none z-50"
+            className="fixed right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-500/20 to-transparent flex items-center justify-end pr-4 pointer-events-none z-50"
           >
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
@@ -501,6 +528,27 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
               <div className="bg-blue-500 text-white text-sm font-bold px-2 py-1 rounded-full shadow-lg">
                 {nextGroup}
               </div>
+              {nextGroupNextAssignment && (
+                <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-2 text-center mt-1">
+                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                    Next Up
+                  </div>
+                  <div className="text-xs font-medium text-slate-700 mt-1">
+                    {formatShortDate(nextGroupNextAssignment.date)}
+                  </div>
+                  <Badge className={`mt-1 text-[10px] px-1.5 py-0.5 ${
+                    nextGroupNextAssignment.taskType === 'Main Hall' 
+                      ? 'bg-sky-500' 
+                      : 'bg-emerald-500'
+                  } text-white`}>
+                    {nextGroupNextAssignment.taskType === 'Main Hall' ? (
+                      <><House className="w-2.5 h-2.5 mr-0.5" weight="fill" />Hall</>
+                    ) : (
+                      <><Drop className="w-2.5 h-2.5 mr-0.5" weight="fill" />CR</>
+                    )}
+                  </Badge>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -701,8 +749,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
                       <AnimatePresence>
                         {isAnimating && (
                           <CleaningAnimation 
-                            taskType={assignment.taskType} 
-                            onComplete={handleAnimationComplete}
+                            taskType={assignment.taskType}
                           />
                         )}
                       </AnimatePresence>
