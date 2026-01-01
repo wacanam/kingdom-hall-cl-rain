@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast, Toaster } from 'sonner'
@@ -265,11 +265,77 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
   )
 }
 
+function CleaningAnimation({ taskType, onComplete }: { taskType: TaskType; onComplete: () => void }) {
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([])
+  
+  useEffect(() => {
+    const newParticles = Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 80 - 40,
+      y: Math.random() * 60 - 30
+    }))
+    setParticles(newParticles)
+    
+    const timer = setTimeout(onComplete, 1500)
+    return () => clearTimeout(timer)
+  }, [onComplete])
+
+  const Icon = taskType === 'Main Hall' ? Broom : Drop
+
+  return (
+    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.5, opacity: 0 }}
+        className="relative"
+      >
+        <motion.div
+          animate={taskType === 'Main Hall' ? {
+            rotate: [0, -15, 15, -15, 15, 0],
+            x: [0, -10, 10, -10, 10, 0]
+          } : {
+            y: [0, 5, 0, 5, 0],
+            scale: [1, 1.1, 1, 1.1, 1]
+          }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+        >
+          <Icon 
+            className={`w-12 h-12 ${taskType === 'Main Hall' ? 'text-sky-500' : 'text-blue-500'}`}
+            weight="duotone"
+          />
+        </motion.div>
+        
+        {particles.map(particle => (
+          <motion.div
+            key={particle.id}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+            animate={{ 
+              x: particle.x, 
+              y: particle.y, 
+              opacity: 0,
+              scale: 0.5
+            }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="absolute top-1/2 left-1/2"
+          >
+            <Sparkle 
+              className={`w-3 h-3 ${taskType === 'Main Hall' ? 'text-amber-400' : 'text-cyan-400'}`}
+              weight="fill"
+            />
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  )
+}
+
 function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number; onChangeGroup: () => void; onGroupChange: (newGroup: number) => void }) {
   const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null)
   const [hasTriggeredHaptic, setHasTriggeredHaptic] = useState(false)
   const [swipeThresholdReached, setSwipeThresholdReached] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
+  const [animatingCard, setAnimatingCard] = useState<string | null>(null)
   const nextAssignment = getNextAssignment(group)
   const allAssignments = getAssignmentsForGroup(group)
   const today = new Date()
@@ -379,9 +445,17 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
     return (
       <Badge className="bg-emerald-500 text-white uppercase text-xs font-semibold tracking-wider">
         <Drop className="w-3 h-3 mr-1" weight="fill" />
-        CR
+        Restrooms (CR)
       </Badge>
     )
+  }
+
+  const handleCardClick = (cardId: string) => {
+    setAnimatingCard(cardId)
+  }
+
+  const handleAnimationComplete = () => {
+    setAnimatingCard(null)
   }
 
   return (
@@ -537,74 +611,108 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
               </h3>
             </div>
 
-            <div className="relative pl-12 space-y-3">
-              <div className="absolute left-[23px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-300 to-slate-200" />
+            <div className="relative pl-14 space-y-6">
+              <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-gradient-to-b from-blue-300 via-blue-200 to-slate-200" />
 
-              {upcomingAssignments.map((assignment, index) => (
-                <motion.div
-                  key={`${assignment.date}-${assignment.taskType}`}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.2 }}
-                  className="relative"
-                >
-                  <div className="absolute -left-12 top-5 w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-md">
-                    {assignment.taskType === 'Main Hall' ? (
-                      <House className="w-6 h-6 text-white" weight="fill" />
-                    ) : (
-                      <Drop className="w-6 h-6 text-white" weight="fill" />
-                    )}
-                  </div>
+              {upcomingAssignments.map((assignment, index) => {
+                const cardId = `${assignment.date}-${assignment.taskType}`
+                const isAnimating = animatingCard === cardId
+                
+                return (
+                  <motion.div
+                    key={cardId}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.2 }}
+                    className="relative"
+                  >
+                    <motion.div 
+                      className="absolute -left-14 top-5 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+                      style={{
+                        background: assignment.taskType === 'Main Hall' 
+                          ? 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)'
+                          : 'linear-gradient(135deg, #34d399 0%, #059669 100%)'
+                      }}
+                      animate={{
+                        scale: [1, 1.05, 1],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: index * 0.2
+                      }}
+                    >
+                      {assignment.taskType === 'Main Hall' ? (
+                        <House className="w-7 h-7 text-white" weight="fill" />
+                      ) : (
+                        <Drop className="w-7 h-7 text-white" weight="fill" />
+                      )}
+                    </motion.div>
 
-                  <Card className="p-5 transition-all duration-150 hover:scale-102 hover:shadow-lg border-2 border-slate-200 bg-white/80 backdrop-blur-lg">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                      <div className="space-y-1">
-                        <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
-                          {getDayOfWeek(assignment.date)}
+                    <Card 
+                      className="relative p-5 transition-all duration-150 hover:scale-102 hover:shadow-lg border-2 border-slate-200 bg-white/80 backdrop-blur-lg cursor-pointer overflow-hidden"
+                      onClick={() => handleCardClick(cardId)}
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                            {getDayOfWeek(assignment.date)}
+                          </div>
+                          <div className="text-lg font-medium text-slate-800">
+                            {formatShortDate(assignment.date)}
+                          </div>
                         </div>
-                        <div className="text-lg font-medium text-slate-800">
-                          {formatShortDate(assignment.date)}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {getTaskBadge(assignment.taskType)}
+                          {getProximityBadge(assignment.date)}
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50"
+                              >
+                                <ListChecks className="w-4 h-4" weight="bold" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                                  {assignment.taskType === 'Main Hall' ? (
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center">
+                                      <House className="w-6 h-6 text-white" weight="fill" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                                      <Drop className="w-6 h-6 text-white" weight="fill" />
+                                    </div>
+                                  )}
+                                  {assignment.taskType} Checklist
+                                </DialogTitle>
+                                <DialogDescription className="text-slate-600">
+                                  {formatDate(assignment.date)}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <CleaningChecklistContent taskType={assignment.taskType} />
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {getTaskBadge(assignment.taskType)}
-                        {getProximityBadge(assignment.date)}
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50"
-                            >
-                              <ListChecks className="w-4 h-4" weight="bold" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                                {assignment.taskType === 'Main Hall' ? (
-                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center">
-                                    <House className="w-6 h-6 text-white" weight="fill" />
-                                  </div>
-                                ) : (
-                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-                                    <Drop className="w-6 h-6 text-white" weight="fill" />
-                                  </div>
-                                )}
-                                {assignment.taskType} Checklist
-                              </DialogTitle>
-                              <DialogDescription className="text-slate-600">
-                                {formatDate(assignment.date)}
-                              </DialogDescription>
-                            </DialogHeader>
-                            <CleaningChecklistContent taskType={assignment.taskType} />
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
+                      
+                      <AnimatePresence>
+                        {isAnimating && (
+                          <CleaningAnimation 
+                            taskType={assignment.taskType} 
+                            onComplete={handleAnimationComplete}
+                          />
+                        )}
+                      </AnimatePresence>
+                    </Card>
+                  </motion.div>
+                )
+              })}
             </div>
           </div>
         )}
@@ -618,37 +726,46 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
               </h3>
             </div>
 
-            <div className="relative pl-12 space-y-3">
-              <div className="absolute left-[23px] top-0 bottom-0 w-0.5 bg-slate-200" />
+            <div className="relative pl-14 space-y-6">
+              <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-slate-200" />
 
-              {pastAssignments.slice(-5).map((assignment) => (
-                <div
-                  key={`${assignment.date}-${assignment.taskType}`}
-                  className="relative"
-                >
-                  <div className="absolute -left-12 top-5 w-12 h-12 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center shadow-sm">
-                    {assignment.taskType === 'Main Hall' ? (
-                      <House className="w-6 h-6 text-white" weight="fill" />
-                    ) : (
-                      <Drop className="w-6 h-6 text-white" weight="fill" />
-                    )}
-                  </div>
-
-                  <Card className="p-5 border border-slate-200 bg-white/60">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                      <div className="space-y-1">
-                        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                          {getDayOfWeek(assignment.date)}
-                        </div>
-                        <div className="text-lg font-medium text-slate-600">
-                          {formatShortDate(assignment.date)}
-                        </div>
-                      </div>
-                      {getTaskBadge(assignment.taskType)}
+              {pastAssignments.slice(-5).map((assignment) => {
+                const cardId = `past-${assignment.date}-${assignment.taskType}`
+                
+                return (
+                  <div
+                    key={cardId}
+                    className="relative"
+                  >
+                    <div 
+                      className="absolute -left-14 top-5 w-14 h-14 rounded-full flex items-center justify-center shadow-sm"
+                      style={{
+                        background: 'linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%)'
+                      }}
+                    >
+                      {assignment.taskType === 'Main Hall' ? (
+                        <House className="w-7 h-7 text-white" weight="fill" />
+                      ) : (
+                        <Drop className="w-7 h-7 text-white" weight="fill" />
+                      )}
                     </div>
-                  </Card>
-                </div>
-              ))}
+
+                    <Card className="p-5 border border-slate-200 bg-white/60">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            {getDayOfWeek(assignment.date)}
+                          </div>
+                          <div className="text-lg font-medium text-slate-600">
+                            {formatShortDate(assignment.date)}
+                          </div>
+                        </div>
+                        {getTaskBadge(assignment.taskType)}
+                      </div>
+                    </Card>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
