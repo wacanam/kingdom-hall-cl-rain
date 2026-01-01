@@ -13,10 +13,14 @@ import {
   Drop,
   PaintBucket,
   HandSoap,
+  Circle,
+  Swatches,
 } from '@phosphor-icons/react'
 
 const cleaningIcons = [
   { Icon: Broom, label: 'Broom', isPhosphor: true },
+  { Icon: Swatches, label: 'Mop', isPhosphor: true },
+  { Icon: Circle, label: 'Sponge', isPhosphor: true },
   { Icon: Toilet, label: 'Toilet', isPhosphor: true },
   { Icon: Bathtub, label: 'Bathtub', isPhosphor: true },
   { Icon: HandSoap, label: 'Soap', isPhosphor: true },
