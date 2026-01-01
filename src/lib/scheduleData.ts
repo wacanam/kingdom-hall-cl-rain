@@ -25,7 +25,7 @@ export const cleaningInstructionsData: Record<TaskType, CleaningInstructions> = 
     taskType: 'Main Hall',
     estimatedTime: '45-60 minutes',
     supplies: [
-      'Vacuum cleaner',
+      'Vacuum cleaner (for carpeted floors) OR Broom and mop (for non-carpeted floors)',
       'Microfiber cloths',
       'Glass cleaner',
       'All-purpose cleaner',
@@ -34,7 +34,7 @@ export const cleaningInstructionsData: Record<TaskType, CleaningInstructions> = 
     ],
     checklist: [
       { id: 'mh-1', task: 'Empty all trash receptacles and replace liners', area: 'General' },
-      { id: 'mh-2', task: 'Vacuum all carpeted areas thoroughly', area: 'Floors' },
+      { id: 'mh-2', task: 'Clean all floor areas thoroughly (vacuum carpeted areas OR sweep and mop non-carpeted floors)', area: 'Floors' },
       { id: 'mh-3', task: 'Dust all windowsills and ledges', area: 'Windows' },
       { id: 'mh-4', task: 'Clean all interior glass doors and windows', area: 'Windows' },
       { id: 'mh-5', task: 'Wipe down all door handles and light switches', area: 'Surfaces' },
