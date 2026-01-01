@@ -505,7 +505,6 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
           </motion.div>
         )}
       </AnimatePresence>
-
       <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -528,7 +527,6 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
           </Button>
         </div>
       </div>
-
       <motion.div 
         className="max-w-4xl mx-auto p-4 md:p-6 space-y-8 pb-20"
         drag="x"
@@ -627,7 +625,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
                     className="relative"
                   >
                     <motion.div 
-                      className="absolute -left-14 top-5 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+                      className="absolute -left-14 top-5 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                       style={{
                         background: assignment.taskType === 'Main Hall' 
                           ? 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)'
@@ -650,12 +648,11 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
                         <Drop className="w-7 h-7 text-white" weight="fill" />
                       )}
                     </motion.div>
-
                     <Card 
-                      className="relative p-5 transition-all duration-150 hover:scale-102 hover:shadow-lg border-2 border-slate-200 bg-white/80 backdrop-blur-lg cursor-pointer overflow-hidden"
+                      className="text-card-foreground flex flex-col gap-6 rounded-xl shadow-sm relative p-3 transition-all duration-150 hover:scale-102 hover:shadow-lg border-2 border-slate-200 bg-white/80 backdrop-blur-lg cursor-pointer overflow-hidden ml-1"
                       onClick={() => handleCardClick(cardId)}
                     >
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                         <div className="space-y-1">
                           <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
                             {getDayOfWeek(assignment.date)}
@@ -664,7 +661,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
                             {formatShortDate(assignment.date)}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap justify-between">
                           {getTaskBadge(assignment.taskType)}
                           {getProximityBadge(assignment.date)}
                           <Dialog>
@@ -711,7 +708,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
                       </AnimatePresence>
                     </Card>
                   </motion.div>
-                )
+                );
               })}
             </div>
           </div>
@@ -771,7 +768,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
         )}
       </motion.div>
     </motion.div>
-  )
+  );
 }
 
 function App() {
