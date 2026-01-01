@@ -39,6 +39,7 @@ import {
   type CleaningAssignment,
   type TaskType
 } from '@/lib/scheduleData'
+import { triggerSwipeHaptic } from '@/lib/haptics'
 
 const cleaningIcons = [Broom, Drop, Sparkle, House]
 
@@ -265,6 +266,7 @@ function WelcomeView({ onSelectGroup }: { onSelectGroup: (group: number) => void
 
 function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number; onChangeGroup: () => void; onGroupChange: (newGroup: number) => void }) {
   const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null)
+  const [hasTriggeredHaptic, setHasTriggeredHaptic] = useState(false)
   const nextAssignment = getNextAssignment(group)
   const allAssignments = getAssignmentsForGroup(group)
   const today = new Date()
@@ -291,6 +293,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
       setTimeout(() => {
         onGroupChange(prevGroup)
         setDragDirection(null)
+        setHasTriggeredHaptic(false)
       }, 200)
     } else if (info.offset.x < -swipeThreshold) {
       const nextGroup = group === 6 ? 1 : group + 1
@@ -298,7 +301,19 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
       setTimeout(() => {
         onGroupChange(nextGroup)
         setDragDirection(null)
+        setHasTriggeredHaptic(false)
       }, 200)
+    } else {
+      setHasTriggeredHaptic(false)
+    }
+  }
+
+  const handleDrag = (_event: any, info: { offset: { x: number } }) => {
+    const swipeThreshold = 100
+    
+    if (!hasTriggeredHaptic && Math.abs(info.offset.x) >= swipeThreshold) {
+      triggerSwipeHaptic()
+      setHasTriggeredHaptic(true)
     }
   }
 
@@ -390,6 +405,7 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         animate={{
           x: dragDirection === 'left' ? -50 : dragDirection === 'right' ? 50 : 0,
