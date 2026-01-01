@@ -17,9 +17,14 @@ function generateCleaningDates(): string[] {
   let currentDate = new Date(startDate)
   
   while (currentDate <= endDate) {
-    const dateStr = currentDate.toISOString().split('T')[0]
-    dates.push(dateStr)
-    currentDate.setDate(currentDate.getDate() + 7)
+    const dayOfWeek = currentDate.getDay()
+    
+    if (dayOfWeek === 0 || dayOfWeek === 4) {
+      const dateStr = currentDate.toISOString().split('T')[0]
+      dates.push(dateStr)
+    }
+    
+    currentDate.setDate(currentDate.getDate() + 1)
   }
   
   return dates
