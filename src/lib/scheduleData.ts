@@ -11,7 +11,7 @@ const CR_ROTATION = [5, 1, 2, 4, 6, 3]
 
 function generateCleaningDates(): string[] {
   const dates: string[] = []
-  const startDate = new Date('2026-01-03')
+  const startDate = new Date('2026-01-01')
   const endDate = new Date('2026-12-31')
   
   let currentDate = new Date(startDate)
