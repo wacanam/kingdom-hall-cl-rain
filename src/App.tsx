@@ -274,6 +274,9 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
   const allAssignments = getAssignmentsForGroup(group)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
+  
+  const prevGroup = group === 1 ? 6 : group - 1
+  const nextGroup = group === 6 ? 1 : group + 1
 
   const upcomingAssignments = allAssignments.filter(assignment => {
     const assignmentDate = new Date(assignment.date)
@@ -291,7 +294,6 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
     const swipeThreshold = 100
     
     if (info.offset.x > swipeThreshold) {
-      const prevGroup = group === 1 ? 6 : group - 1
       setDragDirection('right')
       setTimeout(() => {
         onGroupChange(prevGroup)
@@ -301,7 +303,6 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
         setDragOffset(0)
       }, 200)
     } else if (info.offset.x < -swipeThreshold) {
-      const nextGroup = group === 6 ? 1 : group + 1
       setDragDirection('left')
       setTimeout(() => {
         onGroupChange(nextGroup)
@@ -400,8 +401,13 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
             transition={{ duration: 0.2 }}
             className="fixed left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-blue-500/20 to-transparent flex items-center justify-start pl-4 pointer-events-none z-50"
           >
-            <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
-              <ArrowLeft className="w-6 h-6 text-white" weight="bold" />
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
+                <ArrowLeft className="w-6 h-6 text-white" weight="bold" />
+              </div>
+              <div className="bg-blue-500 text-white text-sm font-bold px-2 py-1 rounded-full shadow-lg">
+                {prevGroup}
+              </div>
             </div>
           </motion.div>
         )}
@@ -414,8 +420,13 @@ function DashboardView({ group, onChangeGroup, onGroupChange }: { group: number;
             transition={{ duration: 0.2 }}
             className="fixed right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-blue-500/20 to-transparent flex items-center justify-end pr-4 pointer-events-none z-50"
           >
-            <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
-              <ArrowRight className="w-6 h-6 text-white" weight="bold" />
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-blue-500 shadow-lg flex items-center justify-center">
+                <ArrowRight className="w-6 h-6 text-white" weight="bold" />
+              </div>
+              <div className="bg-blue-500 text-white text-sm font-bold px-2 py-1 rounded-full shadow-lg">
+                {nextGroup}
+              </div>
             </div>
           </motion.div>
         )}
