@@ -1,23 +1,55 @@
-# ✨ Welcome to Your Spark Template!
-You've just launched your brand-new Spark Template Codespace — everything’s fired up and ready for you to explore, build, and create with Spark!
+# Kingdom Hall CleanSync 2026
 
-This template is your blank canvas. It comes with a minimal setup to help you get started quickly with Spark development.
+A React-based application built with Vite, TypeScript, and Tailwind CSS.
 
-🚀 What's Inside?
-- A clean, minimal Spark environment
-- Pre-configured for local development
-- Ready to scale with your ideas
-  
-🧠 What Can You Do?
+## 🚀 Quick Start
 
-Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
+### Local Development
 
-🧹 Just Exploring?
-No problem! If you were just checking things out and don’t need to keep this code:
+```bash
+# Install dependencies
+npm install
 
-- Simply delete your Spark.
-- Everything will be cleaned up — no traces left behind.
+# Start development server
+npm run dev
 
-📄 License For Spark Template Resources 
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## 📦 GitHub Pages Deployment
+
+This repository is configured to automatically deploy to GitHub Pages when changes are pushed to the `main` branch.
+
+### Setup Instructions
+
+1. Go to your repository settings on GitHub
+2. Navigate to **Settings** → **Pages**
+3. Under "Build and deployment":
+   - Set **Source** to "GitHub Actions"
+4. Push changes to the `main` branch to trigger deployment
+
+The application will be available at: `https://wacanam.github.io/kingdom-hall-cl-rain/`
+
+### Manual Deployment
+
+The GitHub Actions workflow can also be triggered manually:
+1. Go to the **Actions** tab in your repository
+2. Select the "Deploy to GitHub Pages" workflow
+3. Click "Run workflow"
+
+## 🛠️ Technologies Used
+
+- **React 19** - UI framework
+- **Vite** - Build tool and development server
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **Radix UI** - Accessible component primitives
+- **GitHub Spark** - Development toolkit
+
+## 📄 License
 
 The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
